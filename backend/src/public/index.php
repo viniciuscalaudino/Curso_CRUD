@@ -14,6 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
+// ajuda aqui e no options
 $uri = strtok($_SERVER['REQUEST_URI'], '?');
 
 match ($uri) {
@@ -26,3 +27,4 @@ function notFound(): void
     http_response_code(404);
     echo json_encode(['error' => 'Not found']);
 }
+
