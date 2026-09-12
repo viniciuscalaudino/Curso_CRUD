@@ -22,3 +22,13 @@ function handleGet(): void
         echo json_encode(['error' => 'Internal server error']);
     }
 }
+function handlePost(): void 
+{
+    try {
+        $input = json_decode(file_get_contents('php://input'), true);
+        respond(createUser($input));
+    } catch (\Throwable $e) {
+        http_response_code(500);
+        echo json_encode(['error' => 'Internal server error']);
+    }
+}
