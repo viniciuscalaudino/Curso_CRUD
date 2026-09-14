@@ -22,6 +22,7 @@ function handleGet(): void
         echo json_encode(['error' => 'Internal server error']);
     }
 }
+
 function handlePost(): void 
 {
     try {
@@ -31,4 +32,45 @@ function handlePost(): void
         http_response_code(500);
         echo json_encode(['error' => 'Internal server error']);
     }
+}
+
+function handlePut(): void
+{
+    try {
+        $input = json_decode(file_get_contents('php://input'), true);
+        $id = isset($_GET['id']) ? (int) $_GET['id'] : null;
+        respond(editUser($id, $input));
+    } catch (\Throwable $e) {
+        http_response_code(500);
+        echo json_encode(['error' => 'Internal server error']);
+    }
+}
+
+function handlePatch(): void
+{
+    try {
+        $input = json_decode(file_get_contents('php://input'), true);
+        $id = isset($_GET['id']) ? (int) $_GET['id'] : null;
+        respond(editUser($id, $input, partial: true));
+    } catch (\Throwable $e) {
+        http_response_code(500);
+        echo json_encode(['error' => 'Internal server error']);
+    }
+}
+
+function handleDelete(): void
+{
+    try {
+        $id = isset($_GET['id']) ? (int) $_GET['id'] : null;
+        respond(removeUser($id));
+    } catch (\Throwable $e) {
+        http_response_code(500);
+        echo json_encode(['error' => 'Internal server error']);
+    }
+}
+
+function handleMethodNotAllowed(): void
+{
+    http_response_code(405);
+    echo json_encode(['error' => 'Method not allowed']);
 }
