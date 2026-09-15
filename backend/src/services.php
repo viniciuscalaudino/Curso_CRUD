@@ -20,6 +20,11 @@ function createUser(?array $input): array
         return ['error' => $error, 'status' => 400];
     }
 
+    $error = validateUserFields($input);
+    if ($error) {
+        return ['error' => $error, 'status' => 400];
+    }
+
     $user = insertUser([
         'name' => trim($input['name']),
         'age' => (int) $input['age'],
@@ -29,10 +34,11 @@ function createUser(?array $input): array
     return ['data' => $user, 'status' => 201];
 }
 
-function editUser (?int $id, ?array $input, bool $partial = false): array
+function editUser (mixed  $id, ?array $input, bool $partial = false): array
 {
-    if ($id === null) {
-        return ['error' => 'User id is required', 'status' => 400];
+    $error = validateUserId($id);
+    if ($error) {
+        return ['error' => $error, 'status' => 400];
     }
 
     if (!is_array($input)) {
@@ -51,5 +57,42 @@ function editUser (?int $id, ?array $input, bool $partial = false): array
         return ['error' => $error, 'status' => 400];
     }
 
+    $allowed = ['name', 'age', 'email'];
+    $fields = array_intersect_key($input, array_flip($allowed));
+
+    if (empty($fields)) {
+        return ['error' => 'At least one of name, age or email must be sent', 'status' => 400];
+    }
+
+    if (isset($fields['name'])) {
+        $fields['name'] = trim($fields['name']);
+    }
+
+    if (isset($fields['age'])) {
+        $fields['age'] = (int) $fields['age'];
+    }
+
+    $user = updateUser((int) $id, $fields);
+
+    if ($user === null) {
+        return['error' => 'User not found', 'status' => 404];
+    }
+
+    return ['data' => $user, 'status' => 200];
+}
+
+function removeUser(mixed $id): array
+{
+    $error = validateUserId($id);
+    if ($error) {
+        return ['error' => $error, 'status' => 400];
+    }
+
+    $user = deleteUser((int) $id);
     
+    if ($user === null) {
+        return ['error' => 'user not found', 'status' => 404];
+    }
+
+    return ['data' => ['deleted' => $user], 'status' => 200];
 }
