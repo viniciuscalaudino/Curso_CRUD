@@ -31,5 +31,25 @@ function createUser(?array $input): array
 
 function editUser (?int $id, ?array $input, bool $partial = false): array
 {
+    if ($id === null) {
+        return ['error' => 'User id is required', 'status' => 400];
+    }
+
+    if (!is_array($input)) {
+        return ['error' => 'Invalid JSON body', 'status' => 400];
+    }
+
+    if(!$partial) {
+        $error = validateRequiredFields($input, ['name', 'age', 'email']);
+        if ($error) {
+            return ['error' => $error, 'status' => 400];
+        }
+    }
+
+    $error = validateUserFields($input);
+    if ($error) {
+        return ['error' => $error, 'status' => 400];
+    }
+
     
 }
