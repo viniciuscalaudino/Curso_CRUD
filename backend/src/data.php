@@ -32,6 +32,7 @@ function saveData(array $data): void
 {
     file_put_contents(DATA_FILE, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 }
+
 function withDataLock(callable $operation): mixed
 {
     $lock = fopen(DATA_FILE, 'c');
@@ -49,5 +50,12 @@ function withDataLock(callable $operation): mixed
     }finally {
         flock($lock, LOCK_UN);
         fclose($lock);
+    }
+}
+
+function insertUser(array $user): array
+{
+    return withDataLock(function () use ($user): array{
+
     }
 }

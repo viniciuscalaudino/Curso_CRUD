@@ -10,5 +10,5 @@ match ($method) {
     'PUT' => handlePut(),
     'PATCH' => handlePatch(),
     'DELETE' => handleDelete(),
-    'default' => handleMethodNotAllowed(),
+    default => handleMethodNotAllowed(),
 };
