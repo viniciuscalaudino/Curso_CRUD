@@ -53,6 +53,12 @@ function validateUserFields(array $input): ?string
         if (!is_numeric($input['age'])) {
             return 'Age must be a number';
         }
+
+        $age = (int) $input['age'];
+
+        if ($age < 1 || $age > 150) {
+            return 'Age must be between 1 and 150';
+        }
     }
 
     if (isset($input['email'])) {
