@@ -1,7 +1,11 @@
-import { renderUsers } from './scripts/dom/render';
-import { createUser } from './scripts/api/create';
+import { renderUsers, findUserById } from './scripts/dom/render.js';
+import { createUser } from './scripts/api/create.js';
+import { deleteUser } from './scripts/api/delete.js';
 
 const apiUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:8000/api/users';
+const form = document.getElementById('create-user-form');
+const formError = document.getElementById('form-error');
+const usersSection = document.getElementById('users');
 
 document.addEventListener('DOMContentLoaded', async () => {
     try {
@@ -10,9 +14,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.error(error);
     }
 });
-
-const form = document.getElementById('create-user-form');
-const formError = document.getElementById('form-error');
 
 function showError(message) {
     formError.textContent = message;
@@ -42,4 +43,26 @@ form.addEventListener('submit', async (event) => {
         showError(error.message)
     }
 
+});
+
+function getUserFromCard(button) {
+    const card = button.closest('.user-card');
+    return findUserById(Number(card.id));
+}
+
+usersSection.addEventListener('click', async (event) => {
+    const { target } = event;
+
+    if (target.dataset.action === 'delete') {
+        const user = getUserFromCard(target);
+
+        if (!confirm('Are you sure you want to delete this user?')) return;
+
+        try {
+            await deleteUser(apiUrl, user.id);
+            await renderUsers(apiUrl);
+        } catch (error) {
+            showError(error.message);
+        }
+    }
 });
