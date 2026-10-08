@@ -1,19 +1,19 @@
 import { renderUsers, findUserById } from './scripts/dom/render.js';
 import { createUser } from './scripts/api/create.js';
 import { deleteUser } from './scripts/api/delete.js';
+import { updateUser, patchUser } from './scripts/api/update.js';
 
 const apiUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:8000/api/users';
+
 const form = document.getElementById('create-user-form');
 const formError = document.getElementById('form-error');
+const formTitle = document.getElementById('form-title');
+const submitBtn = document.getElementById('button[type="submit"]');
+const cancelBtn = document.getElementById('cancel-edit');
 const usersSection = document.getElementById('users');
 
-document.addEventListener('DOMContentLoaded', async () => {
-    try {
-        await renderUsers(apiUrl);
-    } catch (error) {
-        console.error(error);
-    }
-});
+let editingId = null;
+let originalUser = null;
 
 function showError(message) {
     formError.textContent = message;
@@ -25,6 +25,59 @@ function hideError() {
     formError.textContent = '';
 }
 
+function getUserFromCard(button) {
+    const card = button.closest('.user-card');
+    return findUserById(Number(card.id));
+}
+
+function enterEditMode(user) {
+    editingId = user.id;
+    originalUser = { ...user };
+
+    document.getElementById('name').value = user.name;
+    document.getElementById('age').value = user.age;
+    document.getElementById('email').value = user.email;
+
+    formTitle.textContent = 'Edit User';
+    submitBtn.textContent = 'Update';
+    cancelBtn.style.display = '';
+
+    document.getElementById('name').focus();
+}
+
+function exitEditMode() {
+    editingId = null;
+    originalUser = null;
+    formTitle.textContent = 'Create User';
+    submitBtn.textContent = 'Create';
+    cancelBtn.style.display = 'none';
+    form.reset();
+}
+
+cancelBtn.addEventListener('click', exitEditMode);
+
+usersSection.addEventListener('click', async (event) => {
+    const { target } = event;
+
+    if (target.dataset.action === 'edit') {
+        enterEditMode(getUserFromCard(target));
+    }
+
+    if (target.dataset.action === 'delete') {
+        const user = getUserFromCard(target);
+
+        if (!confirm('Are you sure you want to delete this user?')) return;
+
+        try {
+            await deleteUser(apiUrl, user.id);
+            if (editingId === user.id) exitEditMode();
+            await renderUsers(apiUrl);
+        } catch (error) {
+            showError(error.message);
+        }
+    }
+});
+
 form.addEventListener('submit', async (event) => {
     event.preventDefault();
 
@@ -35,9 +88,28 @@ form.addEventListener('submit', async (event) => {
     hideError();
 
     try {
-        await createUser(apiUrl, { name, age, email });
+        if (editingId !== null){
+            const changed = {};
+            if (name !== originalUser.name) changed.name = name;
+            if (Number(age) !== originalUser.age) changed.age = age;
+            if (email !== originalUser.email) changed.email = email;
 
-        form.reset();
+            if (Object.keys(changed).length === 0) {
+                exitEditMode();
+                return;
+            }
+
+            const allChanged = Object.keys(changed).length === 3;
+            if (allChanged) {
+                await updateUser(apiUrl, editingId, { name, age, email });
+            } else {
+                await patchUser(apiUrl, editingId, changed);
+            }
+        } else {
+            await createUser(apiUrl, { name, age, email });
+        }
+        
+        exitEditMode();
         await renderUsers(apiUrl);
     } catch (error) {
         showError(error.message)
@@ -45,24 +117,10 @@ form.addEventListener('submit', async (event) => {
 
 });
 
-function getUserFromCard(button) {
-    const card = button.closest('.user-card');
-    return findUserById(Number(card.id));
-}
-
-usersSection.addEventListener('click', async (event) => {
-    const { target } = event;
-
-    if (target.dataset.action === 'delete') {
-        const user = getUserFromCard(target);
-
-        if (!confirm('Are you sure you want to delete this user?')) return;
-
-        try {
-            await deleteUser(apiUrl, user.id);
-            await renderUsers(apiUrl);
-        } catch (error) {
-            showError(error.message);
-        }
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        await renderUsers(apiUrl);
+    } catch (error) {
+        console.error(error);
     }
 });
