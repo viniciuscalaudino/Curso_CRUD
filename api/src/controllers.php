@@ -32,7 +32,7 @@ function handleGet(): void
 {
     try {
         respond(getAllUsers());
-    } catch (\throwable $e) {
+    } catch (\Throwable $e) {
        respondServerError($e);
     }
 }
@@ -49,7 +49,7 @@ function handlePost(): void
 function handlePut(): void
 {
     try {
-        respond(editUser($_GET ['id'] ?? null, readJsonBody()));
+        respond(editUser($_GET [ 'id' ] ?? null, readJsonBody()));
     } catch (\Throwable $e) {
         respondServerError($e);
     }

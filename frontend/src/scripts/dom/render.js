@@ -38,7 +38,7 @@ export async function renderUsers(apiUrl) {
                       <p class="card-text mb-1"><strong>Age:</strong> ${escapeHtml(user.age)}</p>
                     <p class="card-text"><strong>Email:</strong> ${escapeHtml(user.email)}</p>
                 </div>
-                <div class="card-footer d-flex gap-2>"
+                <div class="card-footer d-flex gap-2">
                         <button class="btn btn-sm btn-outline-dark flex-fill" data-action="edit">Edit</button>
                     <button class="btn btn-sm btn-outline-danger flex-fill" data-action="delete">Delete</button>
                 </div>

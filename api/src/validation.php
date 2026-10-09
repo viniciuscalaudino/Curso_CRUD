@@ -45,7 +45,7 @@ function validateUserFields(array $input): ?string
         }
 
         if (mb_strlen($name) > 100) {
-            return 'Name must be at 100 characters';
+            return 'Name must be at most 100 characters';
         }
     }
 

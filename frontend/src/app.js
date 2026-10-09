@@ -8,7 +8,7 @@ const apiUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:8000/api/users'
 const form = document.getElementById('create-user-form');
 const formError = document.getElementById('form-error');
 const formTitle = document.getElementById('form-title');
-const submitBtn = document.getElementById('button[type="submit"]');
+const submitBtn = form.querySelector('button[type="submit"]');
 const cancelBtn = document.getElementById('cancel-edit');
 const usersSection = document.getElementById('users');
 
@@ -121,6 +121,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         await renderUsers(apiUrl);
     } catch (error) {
-        console.error(error);
+        showError(error.message);
     }
 });

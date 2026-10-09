@@ -6,7 +6,8 @@ require_once __DIR__ . '/data.php';
 function getAllUsers(): array
 {
     $data = loadData();
-    return ['users' => $data['users']];
+
+    return ['data' => ['users' => $data['users']], 'status' => 200];
 }
 
 function createUser(?array $input): array
@@ -91,7 +92,7 @@ function removeUser(mixed $id): array
     $user = deleteUser((int) $id);
     
     if ($user === null) {
-        return ['error' => 'user not found', 'status' => 404];
+        return ['error' => 'User not found', 'status' => 404];
     }
 
     return ['data' => ['deleted' => $user], 'status' => 200];
